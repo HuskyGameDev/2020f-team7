@@ -1,9 +1,101 @@
 pico-8 cartridge // http://www.pico-8.com
 version 29
 __lua__
---game loop
+--main game loop
+entities = {}
+--systems
+physics = {}
+physics.update = function()
+ for ent in all(entities) do
+  if ent.pos ~= nil and ent.movement ~= nil then
+   ent.pos.x += ent.movement.dx
+   ent.pos.y += ent.movement.dy
+  end
+ end
+end
+
+graphics = {}
+graphics.draw = function()
+ cls()
+
+ for ent in all(entities) do
+  if ent.sprite ~= nil and ent.pos ~= nil then
+   spr(ent.sprite.id, ent.pos.x, ent.pos.y)
+  end
+ end
+end
+
+
+function _init()
+ _upd = gameupd
+ _drw = drawgame
+ player1 = newentity(
+  newpos(60, 60, 8, 8),
+  newsprite(1),
+  newmove(0, 0)
+)
+end
+
+function _update()
+ _upd()
+end
+
+function _draw()
+ _drw()
+end
+-->8
+--game update functions
+function gameupd()
+ physics.update()
+ 
+ player1.movement.dx = 0
+ player1.movement.dy = 0
+ if btn(0) then player1.movement.dx = -1 end
+ if btn(1) then player1.movement.dx = 1 end
+ if btn(2) then player1.movement.dy = -1 end
+ if btn(3) then player1.movement.dy = 1 end
+end
+
+function gmoverupd()
+
+end
+-->8
+--game draw functions
+function drawgame()
+ graphics.draw()
+end
 -->8
 --actor system
+function newpos(x, y, w, h)
+ local pos = {}
+ pos.x = x
+ pos.y = y
+ pos.w = w
+ pos.h = h
+ return pos
+end
+
+function newmove(dx, dy)
+ local movement = {}
+ movement.dx = dx
+ movement.dy = dy
+ return movement
+end
+
+function newsprite(id)
+ local sprite = {}
+ sprite.id = id
+ return sprite
+end
+
+function newentity(pos, sprite, movement)
+ local e = {}
+ e.pos = pos
+ e.movement = movement
+ e.sprite = sprite
+ add(entities, e)
+ return e
+end
 -->8
 --menus
 -->8
