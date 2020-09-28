@@ -4,12 +4,26 @@ __lua__
 --main game loop
 entities = {}
 --systems
+controls = {}
+controls.update = function()
+ for ent in all(entities) do
+  if ent.movement ~= nil and ent.control ~= nil then
+   ent.movement.left = ent.control.left(0, ent.control.id)
+   ent.movement.right = ent.control.right(1, ent.control.id)
+   ent.movement.up = ent.control.up(2, ent.control.id)
+   ent.movement.down = ent.control.down(3, ent.control.id)
+  end
+ end
+end
+
 physics = {}
 physics.update = function()
  for ent in all(entities) do
   if ent.pos ~= nil and ent.movement ~= nil then
-   ent.pos.x += ent.movement.dx
-   ent.pos.y += ent.movement.dy
+   if ent.movement.left then ent.pos.x -= ent.movement.spd end
+   if ent.movement.right then ent.pos.x += ent.movement.spd end
+   if ent.movement.up then ent.pos.y -= ent.movement.spd end
+   if ent.movement.down then ent.pos.y += ent.movement.spd end
   end
  end
 end
@@ -32,7 +46,14 @@ function _init()
  player1 = newentity(
   newpos(60, 60, 8, 8),
   newsprite(1),
-  newmove(0, 0)
+  newmovement(false, false, false, false, 1),
+  newPcontrol(0)
+)
+player2 = newentity(
+ newpos(30, 60, 8, 8),
+ newsprite(16),
+ newmovement(false, false, false, false, 1),
+ newPcontrol(1)
 )
 end
 
@@ -47,16 +68,16 @@ end
 --game update functions
 function gameupd()
  physics.update()
- 
- player1.movement.dx = 0
- player1.movement.dy = 0
- if btn(0) then player1.movement.dx = -1 end
- if btn(1) then player1.movement.dx = 1 end
- if btn(2) then player1.movement.dy = -1 end
- if btn(3) then player1.movement.dy = 1 end
+ controls.update()
+ --player1.movement.dx = 0
+ --player1.movement.dy = 0
+ --if btn(0) then player1.movement.dx = -1 end
+ --if btn(1) then player1.movement.dx = 1 end
+ --if btn(2) then player1.movement.dy = -1 end
+ --if btn(3) then player1.movement.dy = 1 end
 end
 
-function gmoverupd()
+function gameoverupd()
 
 end
 -->8
@@ -75,10 +96,28 @@ function newpos(x, y, w, h)
  return pos
 end
 
-function newmove(dx, dy)
+function newMOBcontrol()
+ --WIP, meant to control guards(?)
+end
+
+function newPcontrol(pnum)
+ --WIP
+ local c = {}
+ c.id = pnum
+ c.left = btn
+ c.right = btn
+ c.up = btn
+ c.down = btn
+ return c
+end
+
+function newmovement(l, r, u, d, s)
  local movement = {}
- movement.dx = dx
- movement.dy = dy
+ movement.left = l
+ movement.right = r
+ movement.up = u
+ movement.down = d
+ movement.spd = s
  return movement
 end
 
@@ -88,11 +127,12 @@ function newsprite(id)
  return sprite
 end
 
-function newentity(pos, sprite, movement)
+function newentity(pos, sprite, movement, control)
  local e = {}
  e.pos = pos
  e.movement = movement
  e.sprite = sprite
+ e.control = control
  add(entities, e)
  return e
 end
