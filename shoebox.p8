@@ -72,6 +72,21 @@ key1 = newentity(
  nil,
  nil
 )
+
+gaurd1 = newentity(
+ newpos(16,8,8,8),
+ newsprite(17),
+ nil,
+ nil
+)
+
+gaurd2 = newentity(
+ newpos(104,64,8,8),
+ newsprite(17),
+ nil,
+ nil
+)
+
 end
 
 function _update()
