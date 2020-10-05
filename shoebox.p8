@@ -21,12 +21,17 @@ physics = {}
 physics.update = function()
  for ent in all(entities) do
   if ent.pos ~= nil and ent.movement ~= nil then
-   if ent.movement.left then ent.pos.x -= ent.movement.spd end
-   if ent.movement.right then ent.pos.x += ent.movement.spd end
-   if ent.movement.up then ent.pos.y -= ent.movement.spd end
-   if ent.movement.down then ent.pos.y += ent.movement.spd end
-   if ent == player1 then 
-	if ent.movement.interact then ent.sprite.id = 2 else ent.sprite.id = 1 end 
+   local newx, newy = ent.pos.x, ent.pos.y
+   if ent.movement.left then newx -= ent.movement.spd end
+   if ent.movement.right then newx += ent.movement.spd end
+   if ent.movement.up then newy -= ent.movement.spd end
+   if ent.movement.down then newy += ent.movement.spd end
+   --collision with solid map tiles
+   if not solid(newx, ent.pos.y) then ent.pos.x = newx end
+   if not solid(ent.pos.x, newy) then ent.pos.y = newy end
+
+   if ent == player1 then
+	if ent.movement.interact then ent.sprite.id = 2 else ent.sprite.id = 1 end
 	end
   end
  end
@@ -58,6 +63,12 @@ player2 = newentity(
  newsprite(16),
  newmovement(false, false, false, false, 1),
  newPcontrol(1)
+)
+key1 = newentity(
+ newpos(50,40,8,8),
+ newsprite(70),
+ nil,
+ nil
 )
 end
 
@@ -144,8 +155,12 @@ function newentity(pos, sprite, movement, control)
 end
 -->8
 --menus
+
 -->8
---controls?
+--collision
+function solid(x, y)
+ return fget(mget(x, y), 1)
+end
 __gfx__
 00000000004444400044444000444440004444400044444000000000004444400044444000000000004444400044444000000000000000000000000000000000
 0000000000fffff033fffff300fffff000fffff000fffff00000000000fffff000fffff000000000004444400044444000000000000000000000000000000000
