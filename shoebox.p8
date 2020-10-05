@@ -28,11 +28,11 @@ physics.update = function()
    if ent.movement.up then newy -= ent.movement.spd end
    if ent.movement.down then newy += ent.movement.spd end
    --collision with solid map tiles
-   if not solid(newx, ent.pos.y) then ent.pos.x = newx end
-   if not solid(ent.pos.x, newy) then ent.pos.y = newy end
+   if canmove(ent, newx, ent.pos.y) then ent.pos.x = newx end
+   if canmove(ent, ent.pos.x, newy) then ent.pos.y = newy end
 
    if ent == player1 then
-	if ent.movement.interact then ent.sprite.id = 2 
+	if ent.movement.interact then ent.sprite.id = 2
 	elseif ent.movement.attack then ent.sprite.id = 3 else ent.sprite.id = 1 end
 	end
   end
@@ -160,8 +160,17 @@ end
 
 -->8
 --collision
+--determines if a specific point on the map is solid
 function solid(x, y)
- return fget(mget(x, y), 1)
+ return fget(mget(x/8, y/8), 1)
+end
+--determines if an entity can move onto a point on the map
+function canmove(ent, x, y)
+ if solid(x, y) then return false end
+ if solid(x+ent.pos.w-1, y) then return false end
+ if solid(x, y+ent.pos.h-1) then return false end
+ if solid(x+ent.pos.w-1, y+ent.pos.h-1) then return false end
+ return true
 end
 __gfx__
 00000000004444400044444004444400004444400044444000444440004444400044444000000000004444400044444000000000000000000000000000000000
