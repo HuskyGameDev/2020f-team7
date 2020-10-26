@@ -8,12 +8,12 @@ controls = {}
 controls.update = function()
  for ent in all(entities) do
   if ent.movement ~= nil and ent.control ~= nil then
-   ent.movement.left = ent.control.left(0, ent.control.id)
-   ent.movement.right = ent.control.right(1, ent.control.id)
-   ent.movement.up = ent.control.up(2, ent.control.id)
-   ent.movement.down = ent.control.down(3, ent.control.id)
-   ent.movement.interact = ent.control.interact(4, ent.control.id)
-   ent.movement.attack = ent.control.attack(5, ent.control.id)
+   ent.movement.left = ent.control.left(0, ent)
+   ent.movement.right = ent.control.right(1, ent)
+   ent.movement.up = ent.control.up(2, ent)
+   ent.movement.down = ent.control.down(3, ent)
+   ent.movement.interact = ent.control.interact(4, ent)
+   ent.movement.attack = ent.control.attack(5, ent)
   end
  end
 end
@@ -138,19 +138,40 @@ end
 
 function newMOBcontrol()
  --WIP, meant to control guards(?)
+ local c = {}
+ c.left = copcontrol
+ c.right = copcontrol
+ c.up = copcontrol
+ c.down = copcontrol
+ c.interact = copcontrol
+ c.attack = copcontrol
+ return c
+end
+
+function copcontrol(dir, ent)
+ if ent.left then
+  if not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) then
+   ent.control.left = false
+   ent.control.up = true
+  end
+ end
 end
 
 function newPcontrol(pnum)
  --WIP
  local c = {}
  c.id = pnum
- c.left = btn
- c.right = btn
- c.up = btn
- c.down = btn
- c.interact = btn
- c.attack = btn
+ c.left = button
+ c.right = button
+ c.up = button
+ c.down = button
+ c.interact = button
+ c.attack = button
  return c
+end
+
+function button(dir, ent)
+ return btn(dir, ent.control.id)
 end
 
 function newmovement(l, r, u, d, s)
