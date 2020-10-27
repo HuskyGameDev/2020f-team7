@@ -83,10 +83,10 @@ key1 = newentity(
  nil
 )
 guard1 = newentity(
- newpos(16,8,8,8),
+ newpos(16,16,8,8),
  newsprite(17),
- nil,
- nil
+ newmovement(true, false, false, false, 1),
+ newMOBcontrol({"left"})
 )
 
 guard2 = newentity(
@@ -136,7 +136,7 @@ function newpos(x, y, w, h)
  return pos
 end
 
-function newMOBcontrol()
+function newMOBcontrol(patharray)
  --WIP, meant to control guards(?)
  local c = {}
  c.left = copcontrol
@@ -145,16 +145,66 @@ function newMOBcontrol()
  c.down = copcontrol
  c.interact = copcontrol
  c.attack = copcontrol
+ c.path = patharray
+ c.pathindx = 1
  return c
 end
 
 function copcontrol(dir, ent)
+ --Going Left, direction change
  if ent.left then
   if not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) then
-   ent.control.left = false
-   ent.control.up = true
+   if ent.control.path[ent.control.pathindx] == "right" then
+    ent.control.left = false
+    ent.control.up = true
+   elseif ent.control.path[ent.control.pathindx] == "left" then
+	ent.control.left = false
+    ent.control.down = true
+   end
   end
  end
+ 
+ --Going Right, direction change
+ if ent.right then
+  if not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) then
+   if ent.control.path[ent.control.pathindx] == "right" then
+    ent.control.right = false
+    ent.control.down = true
+   elseif ent.control.path[ent.control.pathindx] == "left" then
+	ent.control.right = false
+    ent.control.up = true
+   end
+  end
+ end
+ 
+ --Going Up, direction change
+ if ent.up then
+  if not canmove(ent, ent.pos.x, ent.pos.x-ent.movement.spd) then
+   if ent.control.path[ent.control.pathindx] == "right" then
+    ent.control.up = false
+    ent.control.right = true
+   elseif ent.control.path[ent.control.pathindx] == "left" then
+	ent.control.up = false
+    ent.control.left = true
+   end
+  end
+ end
+ 
+ --Going Down, direction change
+ if ent.down then
+  if not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) then
+   if ent.control.path[ent.control.pathindx] == "right" then
+    ent.control.down = false
+    ent.control.left = true
+   elseif ent.control.path[ent.control.pathindx] == "left" then
+	ent.control.down = false
+    ent.control.right = true
+   end
+  end
+ end
+ 
+ --Iterate the directions array
+ ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
 end
 
 function newPcontrol(pnum)
