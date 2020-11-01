@@ -182,6 +182,9 @@ function copcontrol(dir, ent)
    ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
    return true
   end
+  if not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) then
+   return false
+  end
   return ent.movement.left
  end
 
@@ -195,6 +198,9 @@ function copcontrol(dir, ent)
    ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
    return true
   end
+  if not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) then
+   return false
+  end
   return ent.movement.right
  end
 
@@ -204,22 +210,28 @@ function copcontrol(dir, ent)
    ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
    return true
   end
-  if (ent.movement.down and not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "left") then
+  if (ent.movement.right and not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "left") then
    ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
    return true
+  end
+  if not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) then
+   return false
   end
   return ent.movement.up
  end
 
- --Going Down, direction change
+ --direction change to down
  if dir == 3 then
   if (ent.movement.left and not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "left") then
    ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
    return true
   end
-  if (ent.movement.down and not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "right") then
+  if (ent.movement.right and not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "right") then
    ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
    return true
+  end
+  if not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) then
+   return false
   end
   return ent.movement.down
  end
