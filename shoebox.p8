@@ -21,23 +21,30 @@ end
 physics = {}
 physics.update = function()
  for ent in all(entities) do
-  if ent.pos ~= nil and ent.movement ~= nil then
-   local oldx, oldy = ent.pos.x, ent.pos.y
-   if ent.movement.left then ent.pos.x -= ent.movement.spd end
-   if ent.movement.right then ent.pos.x += ent.movement.spd end
-   if ent.movement.up then ent.pos.y -= ent.movement.spd end
-   if ent.movement.down then ent.pos.y += ent.movement.spd end
-   --collision with solid map tiles
-   if not canmove(ent, ent.pos.x, oldy) then ent.pos.x = oldx end
-   if not canmove(ent, oldx, ent.pos.y) then ent.pos.y = oldy end
+  if ent.pos ~= nil then
+   if ent.movement ~= nil then
+    local oldx, oldy = ent.pos.x, ent.pos.y
+    if ent.movement.left then ent.pos.x -= ent.movement.spd end
+    if ent.movement.right then ent.pos.x += ent.movement.spd end
+    if ent.movement.up then ent.pos.y -= ent.movement.spd end
+    if ent.movement.down then ent.pos.y += ent.movement.spd end
+    --collision with solid map tiles
+    if not canmove(ent, ent.pos.x, oldy) then ent.pos.x = oldx end
+    if not canmove(ent, oldx, ent.pos.y) then ent.pos.y = oldy end
 
-   for oth in all(entities) do
-    if oth ~= ent and ent.pos ~= nil then
-     if touching(ent, oth) then
-      ent.pos.x = oldx
-      ent.pos.y = oldy
+    for oth in all(entities) do
+     if oth ~= ent and ent.pos ~= nil then
+      --collision with entities
+      if touching(ent, oth) then
+       ent.pos.x = oldx
+       ent.pos.y = oldy
+       if ent.movement.interact then oth.pos.bind = ent end
+      end
      end
     end
+   elseif ent.pos.bind ~= nil then
+    ent.pos.x = ent.pos.bind.pos.x
+    ent.pos.y = ent.pos.bind.pos.y-9
    end
 
    if ent == player1 then
@@ -77,7 +84,7 @@ player2 = newentity(
  newPcontrol(1)
 )
 key1 = newentity(
- newpos(50,40,8,8),
+ newpos(10,40,8,8),
  newsprite(70),
  nil,
  nil
@@ -133,6 +140,7 @@ function newpos(x, y, w, h)
  pos.y = y
  pos.w = w
  pos.h = h
+ pos.bind = nil
  return pos
 end
 
@@ -163,7 +171,7 @@ function copcontrol(dir, ent)
    end
   end
  end
- 
+
  --Going Right, direction change
  if ent.right then
   if not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) then
@@ -176,7 +184,7 @@ function copcontrol(dir, ent)
    end
   end
  end
- 
+
  --Going Up, direction change
  if ent.up then
   if not canmove(ent, ent.pos.x, ent.pos.x-ent.movement.spd) then
@@ -189,7 +197,7 @@ function copcontrol(dir, ent)
    end
   end
  end
- 
+
  --Going Down, direction change
  if ent.down then
   if not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) then
@@ -202,7 +210,7 @@ function copcontrol(dir, ent)
    end
   end
  end
- 
+
  --Iterate the directions array
  ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
 end
@@ -215,13 +223,17 @@ function newPcontrol(pnum)
  c.right = button
  c.up = button
  c.down = button
- c.interact = button
- c.attack = button
+ c.interact = buttonp
+ c.attack = buttonp
  return c
 end
 
 function button(dir, ent)
  return btn(dir, ent.control.id)
+end
+
+function buttonp(act, ent)
+ return btnp(act, ent.control.id)
 end
 
 function newmovement(l, r, u, d, s)
@@ -230,6 +242,8 @@ function newmovement(l, r, u, d, s)
  movement.right = r
  movement.up = u
  movement.down = d
+ movement.interact = nil
+ movement.attack = nil
  movement.spd = s
  return movement
 end
