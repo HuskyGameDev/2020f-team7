@@ -96,6 +96,7 @@ function _init()
   nil,
   nil
  )
+<<<<<<< Updated upstream
  key3 = newentity(
   newpos(216, 112, 8, 8),
   newsprite(75),
@@ -169,6 +170,21 @@ function _init()
   nil
  )
 
+=======
+guard1 = newentity(
+ newpos(16,16,8,8),
+ newsprite(17),
+ newmovement(true, false, false, false, 1),
+ newMOBcontrol({"right", "right", "left"})
+)
+
+guard2 = newentity(
+ newpos(105,64,8,8),
+ newsprite(17),
+ newmovement(false, false, false, true, 1),
+ newMOBcontrol({"left", "left"})
+)
+>>>>>>> Stashed changes
 
  shoebox = newentity(
   newpos(16, 88, 8, 8),
@@ -252,12 +268,12 @@ end
 function copcontrol(dir, ent)
  --direction change to the left
  if dir == 0 then
-  if (ent.movement.up and not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) and ent.control.path[ent.control.pathindx] == "left") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
+  if (not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) and ent.control.path[ent.control.pathindx] == "left") then
+   if ent.movement.up and not ent.movement.left then ent.control.pathindx = ((ent.control.pathindx) % count(ent.control.path)) + 1 end
    return true
   end
-  if (ent.movement.down and not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.control.path[ent.control.pathindx] == "right") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
+  if (not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.control.path[ent.control.pathindx] == "right") then
+   if ent.movement.down and not ent.movement.left then ent.control.pathindx = ((ent.control.pathindx) % count(ent.control.path)) + 1 end
    return true
   end
   if not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) then
@@ -269,11 +285,11 @@ function copcontrol(dir, ent)
  --direction change to the right
  if dir == 1 then
   if (not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) and ent.control.path[ent.control.pathindx] == "right") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
+   if ent.movement.up and not ent.movement.right then ent.control.pathindx = ((ent.control.pathindx) % count(ent.control.path)) + 1 end
    return true
   end
   if (not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.control.path[ent.control.pathindx] == "left") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
+   if ent.movement.down and not ent.movement.right then ent.control.pathindx = ((ent.control.pathindx) % count(ent.control.path)) + 1 end
    return true
   end
   if not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) then
@@ -285,11 +301,11 @@ function copcontrol(dir, ent)
  --direction change to up
  if dir == 2 then
   if (not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "right") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
+   if ent.movement.left and not ent.movement.up then ent.control.pathindx = ((ent.control.pathindx) % count(ent.control.path)) + 1 end
    return true
   end
   if (not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "left") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
+   if ent.movement.right and not ent.movement.up then ent.control.pathindx = ((ent.control.pathindx) % count(ent.control.path)) + 1 end
    return true
   end
   if not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) then
@@ -301,11 +317,11 @@ function copcontrol(dir, ent)
  --direction change to down
  if dir == 3 then
   if (not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "left") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
+   if ent.movement.left and not ent.movement.down then ent.control.pathindx = ((ent.control.pathindx) % count(ent.control.path)) + 1 end
    return true
   end
   if (not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "right") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
+   if ent.movement.right and not ent.movement.down then ent.control.pathindx = ((ent.control.pathindx) % count(ent.control.path)) + 1 end
    return true
   end
   if not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) then
