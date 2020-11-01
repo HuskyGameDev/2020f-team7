@@ -135,21 +135,21 @@ function _init()
   newmovement(false, false, false, false, 1),
   nil
  )
- 
+
  guard4 = newentity(
   newpos(192, 64, 8, 8),
   newsprite(17),
   newmovement(false, false, false, false, 1),
   nil
  )
- 
+
  guard5 = newentity(
   newpos(176, 16, 8, 8),
   newsprite(17),
   newmovement(false, false, false, false, 1),
-  nil 
+  nil
  )
- 
+
  guard6 = newentity(
   newpos(184, 32, 8, 8),
   newsprite(17),
@@ -198,8 +198,25 @@ function gameupd()
  --if btn(3) then player1.movement.dy = 1 end
 end
 
-function gameoverupd()
-
+-- function gameoverupd()
+--
+-- end
+function gameoverupd(g,p)
+  if g.pos.x + 16 > p.pos.x then
+   for i=g.pos.x,p.pos.x do
+    if solid(i,g.pos.y) then
+     return false
+    end
+   end
+  end
+ if g.pos.y + 16 > p.pos.y then
+   for i=g.pos.y,p.pos.y do
+   if solid(g.pos.x,i) then
+    return false
+   end
+  end
+ end
+ return true
 end
 -->8
 --game draw functions
