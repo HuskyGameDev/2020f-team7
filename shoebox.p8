@@ -32,8 +32,12 @@ physics.update = function()
     for oth in all(entities) do
      if oth ~= ent and oth.pos ~= nil then
       --interaction between entities
-      if touching(ent, oth) and ent.movement.interact then
+      if (not ent.hasbound) and touching(ent, oth) and ent.movement.interact then
        oth.pos.bind = ent
+	   ent.hasbound = true
+	  elseif ent.movement.interact and oth.pos.bind == ent then
+	   oth.pos.bind = nil
+	   ent.hasbound = false
       end
      end
     end
@@ -118,14 +122,14 @@ function _init()
  guard1 = newentity(
   newpos(16,16,8,8),
   newsprite(17),
-  newmovement(true, false, false, false, 1),
+  newmovement(true, false, false, false, 0),
   newmobcontrol({3, 1, 2, 0, 2, 0})
  )
 
  guard2 = newentity(
   newpos(105,64,8,8),
   newsprite(17),
-  newmovement(false, false, false, true, 1),
+  newmovement(false, false, false, true, 0),
   newmobcontrol({1, 3, 0, 2, 0, 3})
  )
 
@@ -334,6 +338,7 @@ function newentity(pos, sprite, movement, control)
  e.movement = movement
  e.sprite = sprite
  e.control = control
+ e.hasbound = false
  add(entities, e)
  return e
 end
