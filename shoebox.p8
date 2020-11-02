@@ -230,7 +230,6 @@ end
 --game draw functions
 function drawgame()
  graphics.draw()
- print(guard1.control.pathindx, 64, 64, 3)
 end
 -->8
 --actor system
@@ -277,6 +276,8 @@ function copcontrol(dir, ent)
   if ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 0 and canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) then
    if dir == 0 then 
     ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
+	ent.movement.up = false
+	ent.movement.down = false
     state = true
    else
     state = false
@@ -284,6 +285,8 @@ function copcontrol(dir, ent)
   elseif ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 1 and canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) then
    if dir == 1 then 
     ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
+	ent.movement.up = false
+	ent.movement.down = false
     state = true
    else
     state = false
