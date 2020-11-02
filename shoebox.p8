@@ -120,17 +120,19 @@ function _init()
  )
 
  guard1 = newentity(
-  newpos(16,16,8,8),
+  newpos(8,16,8,8),
   newsprite(17),
-  newmovement(true, false, false, false, 0),
-  newmobcontrol({3, 1, 2, 0, 2, 0})
+  newmovement(true, false, false, false, 1),
+  newmobcontrol({3, 1, 2, 0, -1, 2, -1, 1, 3, 0, 2, -1, 0})
+
  )
 
  guard2 = newentity(
   newpos(105,64,8,8),
   newsprite(17),
-  newmovement(false, false, false, true, 0),
-  newmobcontrol({1, 3, 0, 2, 0, 3})
+  newmovement(false, false, false, true, 1),
+  newmobcontrol({1, -1, 3, 1, 2, 0, 3})
+
  )
 
  guard3 = newentity(
@@ -226,6 +228,7 @@ end
 --game draw functions
 function drawgame()
  graphics.draw()
+ print(guard1.control.pathindx, 64, 64, 3)
 end
 -->8
 --actor system
@@ -267,27 +270,61 @@ function copcontrol(dir, ent)
  else state = true
  end
  
- --If hitting a wall, stop moving in that direction
- if dir == 0 and not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.movement.left then
-  state = false
- end
-
- if dir == 1 and not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.movement.right then
-  state = false
- end
-
- if dir == 2 and not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) and ent.movement.up then
-  state = false
- end
-
- if dir == 3 and not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.movement.down then
-  state = false
- end
+ --Check if we change direction on a wall or off a wall
+ if ent.control.path[ent.control.pathindx] == -1 then
+  if ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 0 and canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) then
+   if dir == 0 then 
+    ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
+    state = true
+   else
+    state = false
+   end
+  elseif ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 1 and canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) then
+   if dir == 1 then 
+    ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
+    state = true
+   else
+    state = false
+   end
+  elseif ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 2 and canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) then
+   if dir == 2 then 
+    ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
+    state = true
+   else
+    state = false
+   end
+  elseif ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 3 and canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) then
+   if dir == 3 then 
+    ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
+    state = true
+   else
+    state = false
+   end
+  end
+ else
  
- --If not moving and time to change direction, change direction
- if dir == ent.control.path[ent.control.pathindx] and not ent.movement.left and not ent.movement.right and not ent.movement.up and not ent.movement.down then
-  ent.control.pathindx = ent.control.pathindx % count(ent.control.path) + 1
-  state = true
+  --If hitting a wall, stop moving in that direction
+  if dir == 0 and not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.movement.left then
+   state = false
+  end
+
+  if dir == 1 and not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.movement.right then
+   state = false
+  end
+
+  if dir == 2 and not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) and ent.movement.up then
+   state = false
+  end
+
+  if dir == 3 and not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.movement.down then
+   state = false
+  end
+ 
+  --If not moving and time to change direction, change direction
+  if dir == ent.control.path[ent.control.pathindx] and not ent.movement.left and not ent.movement.right and not ent.movement.up and not ent.movement.down then
+   ent.control.pathindx = ent.control.pathindx % count(ent.control.path) + 1
+   state = true
+  end
  end
  
  return state 
