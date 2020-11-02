@@ -126,7 +126,7 @@ function _init()
   newpos(105,64,8,8),
   newsprite(17),
   newmovement(false, false, false, true, 1),
-  nil
+  newmobcontrol({1, 3, 0, 2, 0, 3})
  )
 
  guard3 = newentity(
@@ -222,7 +222,6 @@ end
 --game draw functions
 function drawgame()
  graphics.draw()
- print(guard1.control.pathindx, 64, 64, 3)
 end
 -->8
 --actor system
