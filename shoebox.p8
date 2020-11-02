@@ -116,16 +116,16 @@ function _init()
  )
 
  guard1 = newentity(
-  newpos(26,16,8,8),
+  newpos(16,16,8,8),
   newsprite(17),
-  nil,
-  nil
+  newmovement(true, false, false, false, 1),
+  newmobcontrol({3, 1, 2, 0, 2, 0})
  )
 
  guard2 = newentity(
   newpos(105,64,8,8),
   newsprite(17),
-  newmovement(false, false, false, false, 1),
+  newmovement(false, false, false, true, 1),
   nil
  )
 
@@ -222,6 +222,7 @@ end
 --game draw functions
 function drawgame()
  graphics.draw()
+ print(guard1.control.pathindx, 64, 64, 3)
 end
 -->8
 --actor system
@@ -250,69 +251,43 @@ function newmobcontrol(patharray)
 end
 
 function copcontrol(dir, ent)
- --direction change to the left
+ --Set state to the current state of that direction
+ local state = true
  if dir == 0 then
-  if (ent.movement.up and not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) and ent.control.path[ent.control.pathindx] == "left") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
-   return true
-  end
-  if (ent.movement.down and not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.control.path[ent.control.pathindx] == "right") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
-   return true
-  end
-  if not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) then
-   return false
-  end
-  return ent.movement.left
+  state = ent.movement.left
+ elseif dir == 1 then
+  state = ent.movement.right
+ elseif dir == 2 then
+  state = ent.movement.up
+ elseif dir == 3 then
+  state = ent.movement.down
+ else state = true
+ end
+ 
+ --If hitting a wall, stop moving in that direction
+ if dir == 0 and not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.movement.left then
+  state = false
  end
 
- --direction change to the right
- if dir == 1 then
-  if (not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) and ent.control.path[ent.control.pathindx] == "right") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
-   return true
-  end
-  if (not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.control.path[ent.control.pathindx] == "left") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
-   return true
-  end
-  if not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) then
-   return false
-  end
-  return ent.movement.right
+ if dir == 1 and not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.movement.right then
+  state = false
  end
 
- --direction change to up
- if dir == 2 then
-  if (not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "right") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
-   return true
-  end
-  if (not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "left") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
-   return true
-  end
-  if not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) then
-   return false
-  end
-  return ent.movement.up
+ if dir == 2 and not canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) and ent.movement.up then
+  state = false
  end
 
- --direction change to down
- if dir == 3 then
-  if (not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "left") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
-   return true
-  end
-  if (not canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) and ent.control.path[ent.control.pathindx] == "right") then
-   ent.control.pathindx = ((ent.control.pathindx + 1) % count(ent.control.path)) + 1
-   return true
-  end
-  if not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) then
-   return false
-  end
-  return ent.movement.down
+ if dir == 3 and not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.movement.down then
+  state = false
  end
+ 
+ --If not moving and time to change direction, change direction
+ if dir == ent.control.path[ent.control.pathindx] and not ent.movement.left and not ent.movement.right and not ent.movement.up and not ent.movement.down then
+  ent.control.pathindx = ent.control.pathindx % count(ent.control.path) + 1
+  state = true
+ end
+ 
+ return state 
 end
 
 function newPcontrol(pnum)
