@@ -216,6 +216,7 @@ function gameoverupd(g,p)
      return false
     end
    end
+   return true
   end
  if g.pos.y + 16 > p.pos.y then
    for i=g.pos.y,p.pos.y do
@@ -223,8 +224,25 @@ function gameoverupd(g,p)
     return false
    end
   end
+  return true
  end
- return true
+ if g.pos.y - 16 > p.pos.y then
+   for i=g.pos.y,p.pos.y do
+   if solid(g.pos.x,i) then
+    return false
+   end
+  end
+  return true
+ end
+ if g.pos.x - 16 > p.pos.x then
+  for i=g.pos.x,p.pos.x do
+   if solid(i,g.pos.y) then
+    return false
+   end
+  end
+  return true
+ end
+ return false
 end
 -->8
 --game draw functions
@@ -270,11 +288,11 @@ function copcontrol(dir, ent)
   state = ent.movement.down
  else state = true
  end
- 
+
  --Check if we change direction on a wall or off a wall
  if ent.control.path[ent.control.pathindx] == -1 then
   if ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 0 and canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) then
-   if dir == 0 then 
+   if dir == 0 then
     ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
 	ent.movement.up = false
 	ent.movement.down = false
@@ -283,7 +301,7 @@ function copcontrol(dir, ent)
     state = false
    end
   elseif ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 1 and canmove(ent, ent.pos.x+ent.movement.spd, ent.pos.y) then
-   if dir == 1 then 
+   if dir == 1 then
     ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
 	ent.movement.up = false
 	ent.movement.down = false
@@ -292,14 +310,14 @@ function copcontrol(dir, ent)
     state = false
    end
   elseif ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 2 and canmove(ent, ent.pos.x, ent.pos.y-ent.movement.spd) then
-   if dir == 2 then 
+   if dir == 2 then
     ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
     state = true
    else
     state = false
    end
   elseif ent.control.path[(ent.control.pathindx % count(ent.control.path) + 1)] == 3 and canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) then
-   if dir == 3 then 
+   if dir == 3 then
     ent.control.pathindx = (ent.control.pathindx + 2) % count(ent.control.path)
     state = true
    else
@@ -307,7 +325,7 @@ function copcontrol(dir, ent)
    end
   end
  else
- 
+
   --If hitting a wall, stop moving in that direction
   if dir == 0 and not canmove(ent, ent.pos.x-ent.movement.spd, ent.pos.y) and ent.movement.left then
    state = false
@@ -324,15 +342,15 @@ function copcontrol(dir, ent)
   if dir == 3 and not canmove(ent, ent.pos.x, ent.pos.y+ent.movement.spd) and ent.movement.down then
    state = false
   end
- 
+
   --If not moving and time to change direction, change direction
   if dir == ent.control.path[ent.control.pathindx] and not ent.movement.left and not ent.movement.right and not ent.movement.up and not ent.movement.down then
    ent.control.pathindx = ent.control.pathindx % count(ent.control.path) + 1
    state = true
   end
  end
- 
- return state 
+
+ return state
 end
 
 function newPcontrol(pnum)
