@@ -53,11 +53,13 @@ physics.update = function()
       --interaction between entities
       if (not ent.hasbound) and touching(ent, oth) and ent.movement.interact then
        oth.pos.bind = ent
+       oth.pos.solid = false
        sfx(0)
 	      ent.hasbound = true
 	     elseif ent.movement.interact and oth.pos.bind == ent then
 	      oth.pos.bind = nil
 	      ent.hasbound = false
+       oth.pos.solid = true
 	      sfx(0)
       end
      end
