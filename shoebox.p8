@@ -25,9 +25,13 @@ doorsystem.update = function()
  for d in all(doors) do
   for k in all(keys) do
    if touching(k, d) then
+    e = k.pos.bind
+    e.hasbound = false
     d.pos.solid = false
     d.sprite.bottom += 16
+    del(entities, k)
     del(keys, k)
+    sfx(22)
    end
   end
  end
@@ -329,8 +333,8 @@ function newpos(x, y, w, h)
  local pos = {}
  pos.x = x
  pos.y = y
- pos.w = w
- pos.h = h
+ pos.w = w-1
+ pos.h = h-1
  pos.bind = nil
  pos.solid = true
  return pos
@@ -363,7 +367,7 @@ function copcontrol(dir, ent)
   state = ent.movement.down
  elseif dir==4 then
   return false
- else 
+ else
 	state = true
  end
 
@@ -496,12 +500,12 @@ end
 --collision
 --determines if given coordinates are occupied by an entity
 function occupied(x, y, ent)
- return x > ent.pos.x and
- x < ent.pos.x+ent.pos.w and
- y > ent.pos.y and
- y < ent.pos.y+ent.pos.h
+ return x >= ent.pos.x and
+ x <= ent.pos.x+ent.pos.w and
+ y >= ent.pos.y and
+ y <= ent.pos.y+ent.pos.h
 end
---determines
+--determines if two entities are touching
 function touching(ent, oth)
  return occupied(ent.pos.x, ent.pos.y, oth) or
  occupied(ent.pos.x+ent.pos.w-1, ent.pos.y, oth) or
@@ -516,16 +520,16 @@ end
 --determines if an entity can move onto a point on the map
 function canmove(ent, x, y)
  if solid(x, y) then return false end
- if solid(x+ent.pos.w-1, y) then return false end
- if solid(x, y+ent.pos.h-1) then return false end
- if solid(x+ent.pos.w-1, y+ent.pos.h-1) then return false end
+ if solid(x+ent.pos.w, y) then return false end
+ if solid(x, y+ent.pos.h) then return false end
+ if solid(x+ent.pos.w, y+ent.pos.h) then return false end
  --collision with other entities
  for oth in all(entities) do
   if oth ~= ent and oth.pos ~= nil and oth.pos.solid then
    if occupied(x, y, oth) then return false end
-   if occupied(x+ent.pos.w-1, y, oth) then return false end
-   if occupied(x, y+ent.pos.h-1, oth) then return false end
-   if occupied(x+ent.pos.w-1, y+ent.pos.h-1, oth) then return false end
+   if occupied(x+ent.pos.w, y, oth) then return false end
+   if occupied(x, y+ent.pos.h, oth) then return false end
+   if occupied(x+ent.pos.w, y+ent.pos.h, oth) then return false end
   end
  end
 
