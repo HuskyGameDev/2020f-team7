@@ -74,6 +74,9 @@ physics.update = function()
 	elseif ent.movement.attack then ent.sprite.id = 3 else ent.sprite.id = 1 end
 	end
   end
+  if ent == player2 then
+	if ent.pos.x == 272 and ent.pos.y == 16 then state = win end
+	end
  end
 end
 
