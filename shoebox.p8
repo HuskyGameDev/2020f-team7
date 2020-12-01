@@ -286,7 +286,10 @@ function copcontrol(dir, ent)
   state = ent.movement.up
  elseif dir == 3 then
   state = ent.movement.down
- else state = true
+ elseif dir==4 then
+  return false
+ else 
+	state = true
  end
 
  --Check if we change direction on a wall or off a wall
