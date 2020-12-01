@@ -508,9 +508,9 @@ end
 --determines if two entities are touching
 function touching(ent, oth)
  return occupied(ent.pos.x, ent.pos.y, oth) or
- occupied(ent.pos.x+ent.pos.w-1, ent.pos.y, oth) or
- occupied(ent.pos.x, ent.pos.y+ent.pos.h-1, oth) or
- occupied(ent.pos.x+ent.pos.w-1, ent.pos.y+ent.pos.h-1, oth)
+ occupied(ent.pos.x+ent.pos.w, ent.pos.y, oth) or
+ occupied(ent.pos.x, ent.pos.y+ent.pos.h, oth) or
+ occupied(ent.pos.x+ent.pos.w, ent.pos.y+ent.pos.h, oth)
 end
 
 --determines if a specific point on the map is solid
