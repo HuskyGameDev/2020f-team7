@@ -69,6 +69,7 @@ physics.update = function()
    end
 
    if ent == player1 then
+   if ent.pos.x == 120 and ent.pos.y == 16 then state = win end
 	if ent.movement.interact then ent.sprite.id = 2
 	elseif ent.movement.attack then ent.sprite.id = 3 else ent.sprite.id = 1 end
 	end
@@ -95,10 +96,19 @@ graphics.draw = function()
  end
 end
 
+wincond = {}
+wincond.draw = function()
+ cls()
+ print("you won!", 56, 56)
+end
 
 function _init()
  _upd = gameupd
  _drw = drawgame
+ win = 1
+ game = 2
+ draw_func = {[win] = wincond.draw, [game] = graphics.draw}
+ state = game
  --setup the map and add door entities
  mapsetup()
 
@@ -308,7 +318,7 @@ end
 -->8
 --game draw functions
 function drawgame()
- graphics.draw()
+ draw_func[state]()
 end
 -->8
 --actor system
