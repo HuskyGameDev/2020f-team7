@@ -3,6 +3,8 @@ version 29
 __lua__
 --main game loop
 entities = {}
+keys = {}
+doors = {}
 --systems
 controls = {}
 controls.update = function()
@@ -14,6 +16,19 @@ controls.update = function()
    ent.movement.down = ent.control.down(3, ent)
    ent.movement.interact = ent.control.interact(4, ent)
    ent.movement.attack = ent.control.attack(5, ent)
+  end
+ end
+end
+
+doorsystem = {}
+doorsystem.update = function()
+ for d in all(doors) do
+  for k in all(keys) do
+   if touching(k, d) then
+    d.pos.solid = false
+    d.sprite.bottom += 16
+    del(keys, k)
+   end
   end
  end
 end
@@ -30,16 +45,16 @@ physics.update = function()
     if ent.movement.down then ent.pos.y += ent.movement.spd end
 
     for oth in all(entities) do
-     if oth ~= ent and oth.pos ~= nil then
+     if oth ~= ent and oth. group ~= doors and oth.pos ~= nil then
       --interaction between entities
       if (not ent.hasbound) and touching(ent, oth) and ent.movement.interact then
        oth.pos.bind = ent
        sfx(0)
-	   ent.hasbound = true
-	  elseif ent.movement.interact and oth.pos.bind == ent then
-	   oth.pos.bind = nil
-	   ent.hasbound = false
-	   sfx(0)
+	      ent.hasbound = true
+	     elseif ent.movement.interact and oth.pos.bind == ent then
+	      oth.pos.bind = nil
+	      ent.hasbound = false
+	      sfx(0)
       end
      end
     end
@@ -69,7 +84,13 @@ graphics.draw = function()
 	camera(4, 0)
  for ent in all(entities) do
   if ent.sprite ~= nil and ent.pos ~= nil then
-   spr(ent.sprite.id, ent.pos.x, ent.pos.y)
+   if ent.sprite.id ~= -1 then
+    spr(ent.sprite.id, ent.pos.x, ent.pos.y)
+   else
+    --disjointed door sprites
+    spr(ent.sprite.top, ent.pos.x, ent.pos.y)
+    spr(ent.sprite.bottom, ent.pos.x, ent.pos.y+8)
+   end
   end
  end
 end
@@ -78,54 +99,65 @@ end
 function _init()
  _upd = gameupd
  _drw = drawgame
+ --setup the map and add door entities
+ mapsetup()
+
  player1 = newentity(
   newpos(16, 112, 8, 8),
   newsprite(1),
   newmovement(false, false, false, false, 1),
-  newPcontrol(0)
+  newPcontrol(0),
+  nil
  )
  player2 = newentity(
   newpos(168, 112, 8, 8),
   newsprite(16),
   newmovement(false, false, false, false, 1),
-  newPcontrol(1)
+  newPcontrol(1),
+  nil
  )
  key1 = newentity(
   newpos(16,104,8,8),
   newsprite(74),
   nil,
-  nil
+  nil,
+  keys
  )
  key2 = newentity(
   newpos(81, 56, 8, 8),
   newsprite(78),
   nil,
-  nil
+  nil,
+  keys
  )
  key3 = newentity(
   newpos(216, 112, 8, 8),
   newsprite(75),
   nil,
-  nil
+  nil,
+  keys
  )
  key4 = newentity(
   newpos(160, 64, 8, 8),
   newsprite(76),
   nil,
-  nil
+  nil,
+  keys
  )
  key5 = newentity(
   newpos(240, 32, 8, 8),
   newsprite(77),
   nil,
-  nil
+  nil,
+  keys
  )
 
  guard1 = newentity(
   newpos(8,16,8,8),
   newsprite(17),
   newmovement(true, false, false, false, 1),
-  newmobcontrol({3, 1, 2, 0, -1, 2, -1, 1, 3, 0, 2, -1, 0})
+  newmobcontrol({3, 1, 2, 0, -1, 2, -1, 1, 3, 0, 2, -1, 0}),
+  nil
 
  )
 
@@ -133,7 +165,8 @@ function _init()
   newpos(105,64,8,8),
   newsprite(17),
   newmovement(false, false, false, true, 1),
-  newmobcontrol({1, -1, 3, 1, 2, 0, 3})
+  newmobcontrol({1, -1, 3, 1, 2, 0, 3}),
+  nil
 
  )
 
@@ -141,6 +174,7 @@ function _init()
   newpos(200, 108, 8, 8),
   newsprite(17),
   newmovement(false, false, false, false, 1),
+  nil,
   nil
  )
 
@@ -148,6 +182,7 @@ function _init()
   newpos(192, 64, 8, 8),
   newsprite(17),
   newmovement(false, false, false, false, 1),
+  nil,
   nil
  )
 
@@ -155,6 +190,7 @@ function _init()
   newpos(176, 16, 8, 8),
   newsprite(17),
   newmovement(false, false, false, false, 1),
+  nil,
   nil
  )
 
@@ -162,18 +198,21 @@ function _init()
   newpos(184, 32, 8, 8),
   newsprite(17),
   newmovement(false, false, false, true, 1),
-  newmobcontrol({"left"})
+  newmobcontrol({"left"}),
+  nil
  )
  guard7 = newentity(
   newpos(232, 14, 8, 8),
   newsprite(17),
   newmovement(true, false, false, false, 1),
-  newmobcontrol({"left"})
+  newmobcontrol({"left"}),
+  nil
  )
  guard8 = newentity(
   newpos(256, 64, 8, 8),
   newsprite(17),
   newmovement(false, false, false, false, 0),
+  nil,
   nil
  )
 
@@ -182,8 +221,29 @@ function _init()
   newpos(16, 88, 8, 8),
   newsprite(72),
   nil,
+  nil,
   nil
  )
+end
+
+function mapsetup()
+ for i=0,36 do
+  for j=0,16 do
+   tile = mget(i, j)
+   if tile > 89 and tile < 95 then
+    mset(i, j, 0)
+    mset(i, j-1, 0)
+    door = newentity(
+    newpos(i*8, (j-1)*8, 8, 8),
+    newdoorsprite({101, tile}),
+    nil,
+    nil,
+    doors
+    )
+
+   end
+  end
+ end
 end
 
 function _update()
@@ -198,6 +258,7 @@ end
 function gameupd()
  physics.update()
  controls.update()
+ doorsystem.update()
  --player1.movement.dx = 0
  --player1.movement.dy = 0
  --if btn(0) then player1.movement.dx = -1 end
@@ -258,6 +319,7 @@ function newpos(x, y, w, h)
  pos.w = w
  pos.h = h
  pos.bind = nil
+ pos.solid = true
  return pos
 end
 
@@ -394,14 +456,24 @@ function newsprite(id)
  return sprite
 end
 
-function newentity(pos, sprite, movement, control)
+function newdoorsprite(sprarr)
+ local sprite = {}
+ sprite.id = -1
+ sprite.top = sprarr[1]
+ sprite.bottom = sprarr[2]
+ return sprite
+end
+
+function newentity(pos, sprite, movement, control, group)
  local e = {}
  e.pos = pos
  e.movement = movement
  e.sprite = sprite
  e.control = control
  e.hasbound = false
+ e.group = group
  add(entities, e)
+ if group ~= nil then add(group, e) end
  return e
 end
 -->8
@@ -436,7 +508,7 @@ function canmove(ent, x, y)
  if solid(x+ent.pos.w-1, y+ent.pos.h-1) then return false end
  --collision with other entities
  for oth in all(entities) do
-  if oth ~= ent then
+  if oth ~= ent and oth.pos ~= nil and oth.pos.solid then
    if occupied(x, y, oth) then return false end
    if occupied(x+ent.pos.w-1, y, oth) then return false end
    if occupied(x, y+ent.pos.h-1, oth) then return false end
