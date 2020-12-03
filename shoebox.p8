@@ -309,36 +309,44 @@ end
  --if btn(3) then player1.movement.dy = 1 end
 end
 
--- function gameoverupd()
---
--- end
+-- When given one gaurd and one of the players
+-- will check if the player is 16pixels from the guard and if the player
+-- then check if there is a wall between them if there is a wall it returns false
+-- if there is no wall it returns true
 function gameoverupd(g,p)
   if g.pos.x + 16 > p.pos.x then
    for i=g.pos.x,p.pos.x do
+
     if solid(i,g.pos.y) then
      return false
     end
    end
    return true
   end
+
  if g.pos.y + 16 > p.pos.y then
    for i=g.pos.y,p.pos.y do
+
    if solid(g.pos.x,i) then
     return false
    end
   end
   return true
  end
+
  if g.pos.y - 16 > p.pos.y then
    for i=g.pos.y,p.pos.y do
+
    if solid(g.pos.x,i) then
     return false
    end
   end
   return true
  end
+
  if g.pos.x - 16 > p.pos.x then
   for i=g.pos.x,p.pos.x do
+
    if solid(i,g.pos.y) then
     return false
    end
