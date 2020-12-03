@@ -125,6 +125,7 @@ losecond.draw = function()
 end
 
 function _init()
+counter = 0
  _upd = gameupd
  _drw = drawgame
  win = 1
@@ -289,6 +290,14 @@ end
 -->8
 --game update functions
 function gameupd()
+counter+=1
+if counter < 10 *30 then
+camera(4,0)
+elseif counter >= 10 * 30 and counter < 20 * 30 then
+camera(156,0)
+else
+counter=0
+end
  physics.update()
  controls.update()
  doorsystem.update()
