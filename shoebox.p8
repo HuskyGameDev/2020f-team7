@@ -5,6 +5,7 @@ __lua__
 entities = {}
 keys = {}
 doors = {}
+guards = {}
 --systems
 controls = {}
 controls.update = function()
@@ -49,7 +50,9 @@ physics.update = function()
     if ent.movement.down then ent.pos.y += ent.movement.spd end
 
     for oth in all(entities) do
-     if oth ~= ent and oth. group ~= doors and oth.pos ~= nil then
+    	--if player is near a guard, game over
+    	if oth ~= ent and oth.group == guards and guardtouching(oth, ent) then state = lose end
+     if oth ~= ent and oth. group ~= doors and oth.group ~= guards and oth.pos ~= nil then
       --interaction between entities
       if (not ent.hasbound) and touching(ent, oth) and ent.movement.interact then
        oth.pos.bind = ent
@@ -75,12 +78,14 @@ physics.update = function()
    end
 
    if ent == player1 then
+   --if player1 reachers final door, then they win
    if ent.pos.x == 120 and ent.pos.y == 16 then state = win end
 	if ent.movement.interact then ent.sprite.id = 2
 	elseif ent.movement.attack then ent.sprite.id = 3 else ent.sprite.id = 1 end
 	end
   end
   if ent == player2 then
+  --if player2 reachers final door, then they win
 	if ent.pos.x == 272 and ent.pos.y == 16 then state = win end
 	end
  end
@@ -105,10 +110,18 @@ graphics.draw = function()
  end
 end
 
+--draws new screen and prints when win
 wincond = {}
 wincond.draw = function()
  cls()
  print("you won!", 56, 56)
+end
+
+--draws new screen and prints when lose
+losecond = {}
+losecond.draw = function()
+ cls()
+ print("game over", 51, 48)
 end
 
 function _init()
@@ -116,7 +129,8 @@ function _init()
  _drw = drawgame
  win = 1
  game = 2
- draw_func = {[win] = wincond.draw, [game] = graphics.draw}
+ lose = 3
+ draw_func = {[win] = wincond.draw, [game] = graphics.draw, [lose] = losecond.draw}
  state = game
  --setup the map and add door entities
  mapsetup()
@@ -176,7 +190,7 @@ function _init()
   newsprite(17),
   newmovement(true, false, false, false, 1),
   newmobcontrol({3, 1, 2, 0, -1, 2, -1, 1, 3, 0, 2, -1, 0}),
-  nil
+  guards
 
  )
 
@@ -185,7 +199,7 @@ function _init()
   newsprite(17),
   newmovement(false, false, false, true, 1),
   newmobcontrol({1, -1, 3, 1, 2, 0, 3}),
-  nil
+  guards
 
  )
 
@@ -515,6 +529,16 @@ function touching(ent, oth)
  occupied(ent.pos.x+ent.pos.w, ent.pos.y+ent.pos.h, oth)
 end
 
+--determines if player is close to any guard
+function guardtouching(ent, oth)
+ return occupied(ent.pos.x, ent.pos.y, oth) or
+ occupied(ent.pos.x+ent.pos.w + 1, ent.pos.y, oth) or
+ occupied(ent.pos.x-ent.pos.w - 1, ent.pos.y, oth) or
+ occupied(ent.pos.x, ent.pos.y+ent.pos.h + 1, oth) or
+ occupied(ent.pos.x, ent.pos.y-ent.pos.h - 1, oth) or
+ occupied(ent.pos.x+ent.pos.w + 1, ent.pos.y+ent.pos.h + 1, oth)
+end
+
 --determines if a specific point on the map is solid
 function solid(x, y)
  return fget(mget(x/8, y/8), 1)
@@ -715,4 +739,3 @@ __sfx__
 0110000013722117320f7400c7400a7240a721077200773003742037400073013710117100f7200c7300a741077420a742117300a73000730117110f7300f7410a7400a731057200372003732007420374000720
 001000002e7202e7302e7402e7302b7202972029730277402773024720247202273022740227301f7201d7201b7301b7401b7301b720187201b7301d7401f7302272024730247402773027720277302774027730
 001000002e7202b73029740277302772027720297302e74030730337203772037730357403573033720337202e7302e7402b7302972027720277302774027730297202b7202e7302e7402b7302b7202973029740
-__music__
