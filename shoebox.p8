@@ -25,6 +25,24 @@ end
 
 doorsystem = {}
 doorsystem.update = function(ents)
+ for k in all(keys) do
+  local ent = k.pos.bind
+  if ent ~= nil then
+   for d in all(doors) do
+    if touching(ent, d) then
+     ent.hasbound = false
+     d.pos.solid = false
+     d.sprite.bottom += 16
+     del(ents, k)
+     del(keys, k)
+     sfx(22)
+    end
+   end
+  end
+ end
+end
+
+--[[doorsystem.update = function(ents)
  for d in all(doors) do
   for k in all(keys) do
    local ent = k.pos.bind
@@ -38,7 +56,7 @@ doorsystem.update = function(ents)
    end
   end
  end
-end
+end]]--
 
 physics = {}
 physics.update = function(ents)
@@ -51,10 +69,13 @@ physics.update = function(ents)
     if ent.movement.up then ent.pos.y -= ent.movement.spd end
     if ent.movement.down then ent.pos.y += ent.movement.spd end
 
+    --moved door update function because the player can't touch doors otherwise
+    doorsystem.update(ents)
+
     for oth in all(ents) do
     	--if player is near a guard, game over
-    	if oth ~= ent and oth.group == guards and guardtouching(oth, ent) then state = lose end
-     if oth ~= ent and oth. group ~= doors and oth.group ~= guards and oth.pos ~= nil then
+    	if oth ~= ent and oth.group == guards and touching(ent, oth) then _drw = losecond.draw end
+     if oth ~= ent and oth.group ~= doors and oth.group ~= guards and oth.pos ~= nil then
       --interaction between entities
       if (not ent.hasbound) and touching(ent, oth) and ent.movement.interact then
        oth.pos.bind = ent
@@ -97,6 +118,13 @@ graphics = {}
 graphics.draw = function(ents)
  cls()
 	map(0, 0, 0, 0, 50, 16)
+
+ for e in all(entities_a) do
+  if e ~= player1 then
+   print(touching(player1, e), e.pos.x, e.pos.y-10, 10)
+  end
+ end
+
 	camera(CAM_X, CAM_Y)
 	--camera(4, 0)
  for ent in all(ents) do
@@ -308,7 +336,6 @@ function gameupd()
  else
   physics.update(focus)
   controls.update(focus)
-  doorsystem.update(focus)
  end
 
 end
@@ -563,16 +590,6 @@ function touching(ent, oth)
  occupied(ent.pos.x+ent.pos.w, ent.pos.y, oth) or
  occupied(ent.pos.x, ent.pos.y+ent.pos.h, oth) or
  occupied(ent.pos.x+ent.pos.w, ent.pos.y+ent.pos.h, oth)
-end
-
---determines if player is close to any guard
-function guardtouching(ent, oth)
- return occupied(ent.pos.x, ent.pos.y, oth) or
- occupied(ent.pos.x+ent.pos.w + 1, ent.pos.y, oth) or
- occupied(ent.pos.x-ent.pos.w - 1, ent.pos.y, oth) or
- occupied(ent.pos.x, ent.pos.y+ent.pos.h + 1, oth) or
- occupied(ent.pos.x, ent.pos.y-ent.pos.h - 1, oth) or
- occupied(ent.pos.x+ent.pos.w + 1, ent.pos.y+ent.pos.h + 1, oth)
 end
 
 --determines if a specific point on the map is solid
