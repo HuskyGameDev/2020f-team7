@@ -191,7 +191,7 @@ function _init()
   newsprite(77),
   nil,
   nil,
-  entities_B,
+  entities_b,
   keys
  )
 
@@ -301,7 +301,7 @@ function gameupd()
    shoebox.pos.bind = nil
    shoebox.pos.solid = true
   end
-  
+
   old = focus
   focus = entities_global
   _upd = stage_switch
@@ -323,7 +323,7 @@ function stage_switch()
   shoebox.pos.x += dir
   CAM_X += dir
  else
-  focus = (old == entities_a and entities_B or entities_A)
+  focus = (old == entities_a and entities_b or entities_a)
   _upd = gameupd
  end
 end
