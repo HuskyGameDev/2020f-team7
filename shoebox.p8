@@ -220,7 +220,7 @@ function _init()
   newmovement(false, false, false, false, 1),
   nil,
   entities_b,
-  guard
+  guards
  )
 
  guard4 = newentity(
@@ -229,7 +229,7 @@ function _init()
   newmovement(true, false, false, false, 1),
   newmobcontrol({3, 1, -1, 3, 1, 2, 0, -1, 2, 0, 3}),
   entities_b,
-  guard
+  guards
  )
 
  guard5 = newentity(
@@ -238,7 +238,7 @@ function _init()
   newmovement(false, false, false, false, 1),
   nil,
   entities_b,
-  guard
+  guards
  )
 
  shoebox = newentity(
