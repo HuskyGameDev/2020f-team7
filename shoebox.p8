@@ -36,6 +36,7 @@ doorsystem.update = function(ents)
      d.sprite.bottom += 16
      del(ents, k)
      del(keys, k)
+     del(entities_global, k)
      sfx(22)
     end
    end
