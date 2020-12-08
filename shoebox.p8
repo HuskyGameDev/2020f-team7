@@ -29,8 +29,9 @@ doorsystem.update = function(ents)
   local ent = k.pos.bind
   if ent ~= nil then
    for d in all(doors) do
-    if touching(ent, d) then
+    if d.locked and touching(ent, d) then
      ent.held = nil
+     d.locked = false
      d.pos.solid = false
      d.sprite.bottom += 16
      del(ents, k)
@@ -346,6 +347,7 @@ function mapsetup()
     (i > 16 and entities_b or entities_a),
     doors
     )
+    door.locked = true
 
    end
   end
