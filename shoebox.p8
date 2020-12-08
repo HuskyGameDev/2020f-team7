@@ -27,9 +27,9 @@ doorsystem = {}
 doorsystem.update = function(ents)
  for d in all(doors) do
   for k in all(keys) do
-   if touching(k, d) then
-    e = k.pos.bind
-    e.hasbound = false
+   local ent = k.pos.bind
+   if ent ~= nil and touching(ent, d) then
+    ent.hasbound = false
     d.pos.solid = false
     d.sprite.bottom += 16
     del(ents, k)
@@ -296,10 +296,12 @@ function gameupd()
  if (time % TIME_FRAMES) == 0 then
 
   --prep the shoebox for time travel
-  shoebox.pos.bind.hasbound = false
-  shoebox.pos.bind = nil
-  shoebox.pos.solid = true
-
+  if shoebox.pos.bind ~= nil then
+   shoebox.pos.bind.hasbound = false
+   shoebox.pos.bind = nil
+   shoebox.pos.solid = true
+  end
+  
   old = focus
   focus = entities_global
   _upd = stage_switch
