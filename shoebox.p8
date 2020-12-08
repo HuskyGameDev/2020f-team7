@@ -30,7 +30,7 @@ doorsystem.update = function(ents)
   if ent ~= nil then
    for d in all(doors) do
     if touching(ent, d) then
-     ent.hasbound = false
+     ent.held = nil
      d.pos.solid = false
      d.sprite.bottom += 16
      del(ents, k)
@@ -68,29 +68,18 @@ physics.update = function(ents)
     if ent.movement.right then ent.pos.x += ent.movement.spd end
     if ent.movement.up then ent.pos.y -= ent.movement.spd end
     if ent.movement.down then ent.pos.y += ent.movement.spd end
+    if ent.movement.interact then
+     interaction(ents, ent)
+    end
 
     --moved door update function because the player can't touch doors otherwise
     doorsystem.update(ents)
-
-    for oth in all(ents) do
-    	--if player is near a guard, game over
-    	if oth ~= ent and oth.group == guards and touching(ent, oth) then _drw = losecond.draw end
-     if oth ~= ent and oth.group ~= doors and oth.group ~= guards and oth.pos ~= nil then
-      --interaction between entities
-      if (not ent.hasbound) and touching(ent, oth) and ent.movement.interact then
-       oth.pos.bind = ent
-       oth.pos.solid = false
-       sfx(0)
-	      ent.hasbound = true
-	     elseif ent.movement.interact and oth.pos.bind == ent then
-	      oth.pos.bind = nil
-	      ent.hasbound = false
-       oth.pos.solid = true
-	      sfx(0)
-      end
+    --player loses on contact with guards
+    for g in all(guards) do
+     if (ent == player1 or ent == player2) and touching(ent, g) then
+      _drw = losecond.draw
      end
     end
-
     --collision with solid map tiles
     if not canmove(ent, ent.pos.x, oldy) then ent.pos.x = oldx end
     if not canmove(ent, oldx, ent.pos.y) then ent.pos.y = oldy end
@@ -114,16 +103,73 @@ physics.update = function(ents)
  end
 end
 
+function interaction(ents, ent)
+ if touching(ent, shoebox) then
+  interact_shoebox(ent)
+ else
+
+  for oth in all(ents) do
+   if oth ~= ent and oth.group ~= doors and oth.group ~= guards and oth.pos ~= nil then
+    --interaction between entities
+    if ent.held == nil and touching(ent, oth) then
+     oth.pos.bind = ent
+     ent.held = oth
+     oth.pos.solid = false
+     sfx(0)
+    elseif oth.pos.bind == ent then
+     oth.pos.bind = nil
+     ent.held = nil
+     oth.pos.solid = true
+     sfx(0)
+    end
+   end
+  end
+
+ end
+end
+
+--player is interacting with shoebox
+function interact_shoebox(ent)
+ if shoebox.held ~= nil then
+  --shoebox is full
+  if ent.held ~= nil then
+   --player is carrying something
+   --do nothing
+  else
+   --player is emptyhanded
+   local item = shoebox.held
+   del(entities_global, item)
+   add(focus, item)
+   item.pos.bind = ent
+   ent.held = item
+   shoebox.held = nil
+   sfx(0)
+  end
+ else
+  --shoebox is empty
+  if ent.held ~= nil then
+   --player is carrying something
+   local item = ent.held
+   del(focus, item)
+   add(entities_global, item)
+   item.pos.bind = shoebox
+   ent.held = nil
+   shoebox.held = item
+   sfx(0)
+  else
+   --player is emptyhanded
+   shoebox.pos.bind = ent
+   shoebox.solid = false
+   ent.held = shoebox
+   sfx(0)
+  end
+ end
+end
+
 graphics = {}
 graphics.draw = function(ents)
  cls()
 	map(0, 0, 0, 0, 50, 16)
-
- for e in all(entities_a) do
-  if e ~= player1 then
-   print(touching(player1, e), e.pos.x, e.pos.y-10, 10)
-  end
- end
 
 	camera(CAM_X, CAM_Y)
 	--camera(4, 0)
@@ -174,6 +220,7 @@ function _init()
   entities_a,
   nil
  )
+
  player2 = newentity(
   newpos(168, 112, 8, 8),
   newsprite(16),
@@ -182,6 +229,7 @@ function _init()
   entities_b,
   nil
  )
+
  key1 = newentity(
   newpos(16,104,8,8),
   newsprite(74),
@@ -277,6 +325,7 @@ function _init()
   entities_global,
   nil
  )
+ shoebox.held = nil
  add(entities_a, shoebox)
  add(entities_b, shoebox)
 end
@@ -325,7 +374,7 @@ function gameupd()
 
   --prep the shoebox for time travel
   if shoebox.pos.bind ~= nil then
-   shoebox.pos.bind.hasbound = false
+   shoebox.pos.bind.held = nil
    shoebox.pos.bind = nil
    shoebox.pos.solid = true
   end
@@ -566,7 +615,7 @@ function newentity(pos, sprite, movement, control, maingroup, subgroup)
  e.movement = movement
  e.sprite = sprite
  e.control = control
- e.hasbound = false
+ e.held = nil
  e.group = subgroup
  add(maingroup, e)
  if subgroup ~= nil then add(subgroup, e) end
