@@ -168,13 +168,14 @@ function interact_shoebox(ent)
 end
 
 graphics = {}
-graphics.draw = function(ents)
+graphics.draw = function()
  cls()
 	map(0, 0, 0, 0, 50, 16)
-
 	camera(CAM_X, CAM_Y)
+ print("time left", CAM_X + 72, CAM_Y + 100, 10)
+ print("before jump "..ceil(time/30), CAM_X + 72, CAM_Y + 108, 10)
 	--camera(4, 0)
- for ent in all(ents) do
+ for ent in all(entities_global) do
   if ent.sprite ~= nil and ent.pos ~= nil then
    if ent.sprite.id ~= -1 then
     spr(ent.sprite.id, ent.pos.x, ent.pos.y)
@@ -323,7 +324,7 @@ function _init()
   newsprite(72),
   nil,
   nil,
-  entities_global,
+  nil,
   nil
  )
  shoebox.held = nil
@@ -363,16 +364,17 @@ function _draw()
 end
 -->8
 --game update functions
-time = 1
 focus = entities_a
 old = nil
-TIME_SECONDS = 10
-TIME_FRAMES = TIME_SECONDS * 30
+time_seconds = 10
+time_frames = time_seconds * 30
+time = time_frames - 1
 
 function gameupd()
- time = ((time + 1) % TIME_FRAMES)
+ time = ((time - 1) % time_frames)
 
- if (time % TIME_FRAMES) == 0 then
+ if (time % time_frames) == 0 then
+  time = time_frames - 1
 
   --prep the shoebox for time travel
   if shoebox.pos.bind ~= nil then
@@ -382,7 +384,7 @@ function gameupd()
   end
 
   old = focus
-  focus = entities_global
+  focus = nil
   _upd = stage_switch
  else
   physics.update(focus)
@@ -455,7 +457,7 @@ end
 -->8
 --game draw functions
 function drawgame()
- draw_func[state](focus)
+ draw_func[state]()
 end
 -->8
 --actor system
@@ -619,6 +621,7 @@ function newentity(pos, sprite, movement, control, maingroup, subgroup)
  e.control = control
  e.held = nil
  e.group = subgroup
+ add(entities_global, e)
  add(maingroup, e)
  if subgroup ~= nil then add(subgroup, e) end
  return e
