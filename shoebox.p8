@@ -44,22 +44,6 @@ doorsystem.update = function(ents)
  end
 end
 
---[[doorsystem.update = function(ents)
- for d in all(doors) do
-  for k in all(keys) do
-   local ent = k.pos.bind
-   if ent ~= nil and touching(ent, d) then
-    ent.hasbound = false
-    d.pos.solid = false
-    d.sprite.bottom += 16
-    del(ents, k)
-    del(keys, k)
-    sfx(22)
-   end
-  end
- end
-end]]--
-
 physics = {}
 physics.update = function(ents)
  for ent in all(ents) do
@@ -77,10 +61,8 @@ physics.update = function(ents)
     --moved door update function because the player can't touch doors otherwise
     doorsystem.update(ents)
     --player loses on contact with guards
-    for g in all(guards) do
-     if (ent == player1 or ent == player2) and touching(ent, g) then
-      _drw = losecond.draw
-     end
+    if ent.group == guards and (guardtouching(ent, player1) or guardtouching(ent, player2)) then
+     _drw = losecond.draw
     end
     --collision with solid map tiles
     if not canmove(ent, ent.pos.x, oldy) then ent.pos.x = oldx end
@@ -172,10 +154,8 @@ graphics = {}
 graphics.draw = function()
  cls()
 	map(0, 0, 0, 0, 50, 16)
-	camera(CAM_X, CAM_Y)
- print("time left", CAM_X + 72, CAM_Y + 100, 10)
- print("before jump "..ceil(time/30), CAM_X + 72, CAM_Y + 108, 10)
-	--camera(4, 0)
+	camera(cam_x, cam_y)
+
  for ent in all(entities_global) do
   if ent.sprite ~= nil and ent.pos ~= nil then
    if ent.sprite.id ~= -1 then
@@ -187,6 +167,9 @@ graphics.draw = function()
    end
   end
  end
+
+ print("time left", cam_x + 72, cam_y + 100, 10)
+ print("before jump "..ceil(time/30), cam_x + 72, cam_y + 108, 10)
 end
 
 --draws new screen and prints when win
@@ -394,15 +377,15 @@ function gameupd()
 
 end
 
-CAM_X, CAM_Y = 4, 0
+cam_x, cam_y = 4, 0
 function stage_switch()
  cls(10)
  local goal = (old == entities_a and 156 or 4)
  local dir = (old == entities_a and 2 or -2)
 
- if (CAM_X ~= goal) then
+ if (cam_x ~= goal) then
   shoebox.pos.x += dir
-  CAM_X += dir
+  cam_x += dir
  else
   focus = (old == entities_a and entities_b or entities_a)
   _upd = gameupd
@@ -645,6 +628,14 @@ function touching(ent, oth)
  occupied(ent.pos.x+ent.pos.w, ent.pos.y, oth) or
  occupied(ent.pos.x, ent.pos.y+ent.pos.h, oth) or
  occupied(ent.pos.x+ent.pos.w, ent.pos.y+ent.pos.h, oth)
+end
+
+--determines if something is touching a guard's hurtbox
+function guardtouching(guard, oth)
+ return occupied(guard.pos.x-1, guard.pos.y-1, oth) or
+ occupied(guard.pos.x+guard.pos.w+1, guard.pos.y-1, oth) or
+ occupied(guard.pos.x-1, guard.pos.y+guard.pos.h+1, oth) or
+ occupied(guard.pos.x+guard.pos.w+1, guard.pos.y+guard.pos.h+1, oth)
 end
 
 --determines if a specific point on the map is solid
